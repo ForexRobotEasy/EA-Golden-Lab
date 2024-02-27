@@ -1,0 +1,77 @@
+mql5
+//+------------------------------------------------------------------+
+//|                       EA Golden Lab                               |
+//|                Developer: Forex Robot Easy Team                  |
+//|              Website: forexroboteasy.com                         |
+//+------------------------------------------------------------------+
+
+// Include necessary libraries and indicators
+#include <Trade\Trade.mqh>
+#include <Indicators\TradersDynamicIndex.mqh>
+
+// Define input parameters
+input double LotSize = 0.01;
+input double StopLoss = 100;
+input double TakeProfit = 200;
+input int MagicNumber = 12345;
+
+// Create an instance of the TDI indicator
+CTradersDynamicIndex tdi;
+
+//+------------------------------------------------------------------+
+//|                 Expert initialization function                  |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Initialize the TDI indicator
+    tdi.Create();
+
+    // Set indicator parameters
+    tdi.SetPeriod(14);
+    tdi.SetPriceType(PRICE_CLOSE);
+
+    // Set stop loss and take profit levels
+    tdi.SetStopLoss(StopLoss);
+    tdi.SetTakeProfit(TakeProfit);
+
+    // Print indicator information to the log
+    Print('TDI Indicator initialized with period =', tdi.GetPeriod());
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//|                    Expert start function                         |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Get the TDI indicator values
+    double tdiValue = tdi.Value(0, 0);
+
+    // Check if the TDI value indicates a buy opportunity
+    if (tdiValue > 50)
+    {
+        // Open a buy trade
+        CTrade trade;
+        trade.Buy(LotSize, Symbol(), 0, 0, MagicNumber);
+    }
+    // Check if the TDI value indicates a sell opportunity
+    else if (tdiValue < -50)
+    {
+        // Open a sell trade
+        CTrade trade;
+        trade.Sell(LotSize, Symbol(), 0, 0, MagicNumber);
+    }
+}
+
+//+------------------------------------------------------------------+
+//|                 Expert deinitialization function                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Destroy the TDI indicator
+    tdi.Destroy();
+
+    // Print the reason for deinitialization to the log
+    Print('EA Golden Lab deinitialized. Reason:', reason);
+}
